@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from tools import ucfirst
 from sqlchemyforms.sqlchemyforms.form import as_form
-from sqlchemyforms.sqlchemyforms.field import FieldFactory
+from sqlchemyforms.sqlchemyforms.field_factory import FieldFactory
 
 class Manager(object):
 

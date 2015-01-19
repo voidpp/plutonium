@@ -2,7 +2,7 @@
 
 import os, sys
 
-sys.path.extend(['modules', 'sqlchemyforms', 'models'])
+sys.path.extend(['modules', 'models'])
 
 from logger import get_logger
 from config import Config

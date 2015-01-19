@@ -1,6 +1,6 @@
 import os, sys
 
-sys.path.extend(['modules', 'sqlchemyforms', 'models'])
+sys.path.extend(['modules', 'models'])
 
 from logger import get_logger
 from config import Config
@@ -24,8 +24,6 @@ except Exception as e:
 
 # create instance
 plutonium = Plutonium(config, logger)
-
-#plutonium.init()
 
 # start the command server, and block this thread
 plutonium.start_command_server()
