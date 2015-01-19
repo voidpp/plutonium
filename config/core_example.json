@@ -1,0 +1,27 @@
+{
+	"database": {
+		"url": "backend://user:pwd@host/dbname",
+		"encoding": "utf-8"
+	},
+	"command_server": {
+		"host": "localhost",
+		"port": 18142
+	},
+	"plugins": {
+		"output": {
+			"transmission": {
+				"enabled": true,
+				"arguments": {}
+			}
+		},
+		"config_user_interface": {
+			"web": {
+				"enabled": true,
+				"arguments": {
+					"host": "0.0.0.0",
+					"port": 18042
+				}
+			}
+		}
+	}
+}
