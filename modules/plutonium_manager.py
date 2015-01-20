@@ -19,6 +19,9 @@ class PlutoniumManager(BackgroundProcessHandler):
     def start(self):
         result = super(PlutoniumManager, self).start()
 
+        if result.code is False:
+            return result
+
         rpc_client = self.get_rpc_client()
 
         """

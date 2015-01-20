@@ -13,6 +13,9 @@ class BackgroundProcessHandler(object):
         self.command = command
 
     def start(self):
+        if self.is_running():
+            return SimpleResponse(False, 'Plutonium is already running. Pid: %d' % self.get_pid())
+
         pid = subprocess.Popen(self.command).pid
 
         file(self.pid_file,'w+').write("%s\n" % pid)

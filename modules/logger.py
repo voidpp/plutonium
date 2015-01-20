@@ -22,8 +22,8 @@ def get_logger(config_file_name, name):
 
     logger = logging.getLogger(name)
 
-    #sys.stderr = StdWriter(logger, logging.ERROR)
-    #sys.stdout = StdWriter(logger, logging.WARNING)
+    sys.stderr = StdWriter(logger, logging.ERROR)
+    sys.stdout = StdWriter(logger, logging.WARNING)
 
     return logger
 
