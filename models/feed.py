@@ -1,13 +1,11 @@
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.relationships import RelationshipProperty
 import re
 
 from lxml import etree
 from StringIO import StringIO
-
-from sqlchemyforms.sqlchemyforms.field import Field, RelationshipField
-from sqlchemyforms.sqlchemyforms.widget import SelectWidget
 
 from orm.base import Base
 from timer import Timer
@@ -25,14 +23,14 @@ class Feed(Base):
     __tablename__ = 'feeds'
 
     id = Column(Integer, primary_key = True)
-    url = Field(Text)
-    name = Field(Text)
-    enabled = Field(Boolean)
-    output_id = Field(Integer, ForeignKey("outputs.id"), nullable = False, widget = SelectWidget(Output.id, [Output.type]))
-    update_interval = Field(Integer)
-    last_update = Field(DateTime)
-    target_path_pattern = Field(Text)
-    filters = RelationshipField("Filter", secondary = feeds_filters_table, widget = SelectWidget(Filter.id, [Filter.name]))
+    url = Column(Text)
+    name = Column(Text)
+    enabled = Column(Boolean)
+    output_id = Column(Integer, ForeignKey("outputs.id"), nullable = False)
+    update_interval = Column(Integer)
+    last_update = Column(DateTime)
+    target_path_pattern = Column(Text)
+    filters = RelationshipProperty("Filter", secondary = feeds_filters_table)
     output = relationship("Output")
     #torrents: backref from Torrent model
 

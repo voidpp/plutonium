@@ -7,8 +7,6 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
 from tools import ucfirst
-from sqlchemyforms.sqlchemyforms.form import as_form
-from sqlchemyforms.sqlchemyforms.field_factory import FieldFactory
 
 class Manager(object):
 
@@ -32,8 +30,6 @@ class Manager(object):
         Session.configure(bind=self.engine)
 
         self.session = Session()
-
-        self.factory = FieldFactory(self.session)
 
         return self.session
 
@@ -59,10 +55,6 @@ class Manager(object):
             class_type = getattr(module, class_name)
 
             self.logger.debug("Decorating model '%s'" % class_name)
-
-            if hasattr(class_type, '__need_form_factory__') and getattr(class_type, '__need_form_factory__'):
-                setattr(class_type, '__factory__', self.factory)
-                as_form(class_type)
 
             if hasattr(class_type, '__need_logger__') and getattr(class_type, '__need_logger__'):
                 setattr(class_type, '__logger__', self.logger)
