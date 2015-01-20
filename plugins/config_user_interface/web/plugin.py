@@ -3,6 +3,7 @@ from plugins.plugin import ConfigUserInterfacePluginBase
 from http_server import AdvancedHTTPServer
 from http_handler import RawHTTPHandler, VirtualHandler
 
+import os
 import threading
 
 class WebConfigUserInterfacePlugin(ConfigUserInterfacePluginBase):
@@ -13,7 +14,7 @@ class WebConfigUserInterfacePlugin(ConfigUserInterfacePluginBase):
         self.httpd = None
         self.logger = plutonium.logger
 
-        RawHTTPHandler.document_root = 'wwwroot'
+        RawHTTPHandler.document_root = os.getcwd() + '/plugins/config_user_interface/web/wwwroot'
         RawHTTPHandler.file_not_found_handler = VirtualHandler()
         RawHTTPHandler.logger = plutonium.logger
         #RawHTTPHandler.file_not_found_handler.register('\/feeds.*', Feeds())

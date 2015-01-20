@@ -3,6 +3,7 @@ import SimpleHTTPServer
 import os, re
 from urlparse import urlparse, parse_qs
 from abc import abstractmethod
+import json
 
 class HTTPResponse(object):
     def __init__(self, content, code):
@@ -27,9 +28,9 @@ class RawHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.wfile.write(response.content)
 
     def handle_all(self):
-        request_path_parts = urlparse(self.path)
 
-        request_path = request_path_parts.path
+        request = urlparse(self.path)
+        request_path = request.path
 
         # if request is domain.hu -> domain.hu/index.html
         if request_path.endswith('/'):
@@ -40,13 +41,25 @@ class RawHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         # serve the file if exists
         if os.path.isfile(file_path):
             with open(file_path) as f:
-                self.respond(f.read(), 200)
+                self.respond(HTTPResponse(f.read(), 200))
                 return
+
+        self.logger.debug("File not found: %s" % file_path)
+
+        params = {}
+
+        if self.command == 'POST':
+            body = self.rfile.read()
+            try:
+                params = json.loads(body)
+            except Exception as e:
+                self.logger.debug("Cannot parse request body '%s'. Reason: %s" % (body, e))
+
+        request.post = params
 
         # if the requested file not exists call the "not found handler"
         if self.file_not_found_handler:
-            result = self.file_not_found_handler.handle_request(request_path_parts)
-            self.respond(HTTPResponse(result.content, result.code))
+            self.respond(self.file_not_found_handler.handle_request(request))
             return
 
         self.respond(HTTPResponse('file not found', 404))
