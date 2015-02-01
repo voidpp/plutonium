@@ -10,7 +10,7 @@ debian:
  * python-lxml
 
 pip:
- * python-pyjsonrpc
+ * python-jsonrpc
  * SQLAlchemy >= 0.9
  * transmissionrpc
 
