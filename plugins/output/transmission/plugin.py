@@ -52,7 +52,7 @@ class TransmissionOutputPlugin(OutputPluginBase):
 
             arguments = {
                 'download-dir': target_path,
-                'paused': True
+                'paused': False
             }
 
             # the result is transmissionrpc.Torrent instance

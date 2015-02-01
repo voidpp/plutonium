@@ -39,7 +39,7 @@ class Plutonium(object):
 
             self.orm_manager.create_engine()
             self.orm_manager.create_session()
-            self.orm_manager.decorate_models()
+            self.orm_manager.decorate_models(self.url_loader)
 
         except Exception as e:
             self.logger.error(traceback.format_exc())

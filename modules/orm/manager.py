@@ -33,7 +33,7 @@ class Manager(object):
 
         return self.session
 
-    def decorate_models(self):
+    def decorate_models(self, url_loader):
         rx = re.compile('^([0-9a-z]{1,})\.py$')
 
         for file in os.listdir('models'):
@@ -58,6 +58,8 @@ class Manager(object):
 
             if hasattr(class_type, '__need_logger__') and getattr(class_type, '__need_logger__'):
                 setattr(class_type, '__logger__', self.logger)
+
+            setattr(class_type, '__url_loader__', url_loader)
 
 
         # maybe this will be moved to some migration tools...
