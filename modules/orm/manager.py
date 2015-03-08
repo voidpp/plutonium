@@ -4,7 +4,7 @@ import re
 import sys
 import importlib
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from tools import ucfirst
 
@@ -13,25 +13,43 @@ class Manager(object):
     def __init__(self, config, logger):
         self.logger = logger
         self.config = config
-        self.engine = None
         self.factory = None
 
-    def create_engine(self, echo = False):
+        self.__engine = None
+        self.__session = None
 
+    def __create_engine(self, echo = False):
         db_uri = self.config['database']['url'].value
         #encoding = self.config['database']['encoding'].value
 
-        self.engine = sqlalchemy.create_engine(db_uri, echo = echo)
+        return sqlalchemy.create_engine(db_uri, echo = echo)
 
-        return self.engine
+    def is_connected(self):
+        if self.__engine is None:
+            return False
+
+        try:
+            self.__engine.execute("SELECT 1")
+        except:
+            return False
+
+        return True
+
+    def get_engine(self):
+        if not self.is_connected():
+            self.__engine = self.__create_engine()
+
+        return self.__engine
 
     def create_session(self):
-        Session = sessionmaker(bind=self.engine) #ez a param kell??
-        Session.configure(bind=self.engine)
+        if self.__session:
+            self.__session.close()
 
-        self.session = Session()
+        session_factory = sessionmaker(bind=self.get_engine())
+        session_class = scoped_session(session_factory)
 
-        return self.session
+        self.__session = session_class()
+        return self.__session
 
     def decorate_models(self, url_loader):
         rx = re.compile('^([0-9a-z]{1,})\.py$')
@@ -64,5 +82,5 @@ class Manager(object):
 
         # maybe this will be moved to some migration tools...
         self.logger.debug('Create tables: ' + str(class_type.metadata.tables.keys()))
-        #class_type.metadata.drop_all(self.engine)
-        class_type.metadata.create_all(self.engine)
+        #class_type.metadata.drop_all(self.get_engine())
+        #class_type.metadata.create_all(self.get_engine())

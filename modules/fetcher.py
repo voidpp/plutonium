@@ -28,13 +28,12 @@ class Fetcher(object):
         thread.start_new_thread(self.do_fetch, ())
         return SimpleResponse(True, 'Fetching started in %d feed(s)' % len(self.feeds))
 
-    def add_torrent(self, torrent, commit = False):
-        self.orm_manager.session.add(torrent)
-        if commit:
-            self.commit()
-
-    def commit(self):
-        self.orm_manager.session.commit()
+    def add_torrents(self, torrents):
+        session = self.orm_manager.create_session()
+        # SQLAlchemy's ORM does not supports bulk insert. But the typical size of the torrents param ~2-3, so not a bug problem...
+        for torrent in torrents:
+            session.add(torrent)
+        session.commit()
 
     def init_models(self):
 
@@ -59,7 +58,7 @@ class Fetcher(object):
 
     def fetch_feeds_from_database(self):
         self.feeds = []
-        for feed in self.orm_manager.session.query(Feed).all():
+        for feed in self.orm_manager.create_session().query(Feed).all():
             self.feeds.append(feed)
             feed.set_fetcher(self)
 

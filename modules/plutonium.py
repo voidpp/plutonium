@@ -36,9 +36,6 @@ class Plutonium(object):
         try:
             # import orm related manager
             self.orm_manager = Manager(self.config.data, self.logger)
-
-            self.orm_manager.create_engine()
-            self.orm_manager.create_session()
             self.orm_manager.decorate_models(self.url_loader)
 
         except Exception as e:

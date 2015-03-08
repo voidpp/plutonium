@@ -56,7 +56,7 @@ class Feed(Base):
             self.__logger__.error("Not found output handler for feed '%s'" % self.name)
             return
 
-        new_items_cnt = 0
+        torrents = []
 
         for item in tree.xpath('/rss/channel/item'):
             guid = item.find('guid')
@@ -87,12 +87,10 @@ class Feed(Base):
 
             new_torrent.is_sent_out = output_handler.send(new_torrent)
 
-            self.__fetcher__.add_torrent(new_torrent)
+            torrents.append(new_torrent)
 
-            new_items_cnt += 1
-
-        if new_items_cnt:
-            self.__fetcher__.commit()
+        if len(torrents):
+            self.__fetcher__.add_torrents(torrents)
 
     def filter_torrent(self, torrent_xml_data):
 
