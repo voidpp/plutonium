@@ -100,7 +100,7 @@ class Feed(Base):
         guid = torrent_xml_data.find('guid')
         link = torrent_xml_data.find('link')
         title_data = torrent_xml_data.find('title')
-        title = '' if title_data is None else title_data.text,
+        title = '' if title_data is None else title_data.text
 
         if link is None:
             self.__logger__.error("Link node is missing from torrent xml node (%s)" % torrent_xml_data)
