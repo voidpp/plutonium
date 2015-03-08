@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Foreign
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.relationships import RelationshipProperty
 import re
+from tools import xml_element_to_storage
 
 from lxml import etree
 from StringIO import StringIO
@@ -85,6 +86,8 @@ class Feed(Base):
 
             new_torrent.feed = self
 
+            new_torrent.update_path_vars(xml_element_to_storage(item))
+
             new_torrent.is_sent_out = output_handler.send(new_torrent)
 
             torrents.append(new_torrent)
@@ -96,6 +99,8 @@ class Feed(Base):
 
         guid = torrent_xml_data.find('guid')
         link = torrent_xml_data.find('link')
+        title_data = torrent_xml_data.find('title')
+        title = '' if title_data is None else title_data.text,
 
         if link is None:
             self.__logger__.error("Link node is missing from torrent xml node (%s)" % torrent_xml_data)
@@ -103,24 +108,35 @@ class Feed(Base):
 
         filtered = False
 
+        matches = None
+        matched_source_node = None
+
         for filter in self.filters:
             source_node = torrent_xml_data.find(filter.source_node)
             if source_node is None:
                 continue
 
-            if re.match(filter.pattern, source_node.text) is not None:
+            matches = re.match(filter.pattern, source_node.text)
+            matched_source_node = filter.source_node
+
+            if (matches is not None and filter.type == 'white') or (matches is None and filter.type == 'black'):
                 filtered = True
                 break
 
         if filtered:
-            self.__logger__.debug("Torrent has been filtered. Filter: %s, Torrent: %s" % (filter, torrent_xml_data))
+            self.__logger__.debug("Torrent has been filtered. Filter: %s, Torrent: %s" % (filter.name, title))
             return None
 
-        title = torrent_xml_data.find('title')
+        torrent = Torrent(name = guid.text, link = link.text, title = title, is_sent_out = False)
 
-        torrent = Torrent(name = guid.text, link = link.text, title = '' if title is None else title.text, is_sent_out = False)
+        # if there is no filters, matches is None
+        if matches:
+            path_vars = {}
 
-        torrent._feed_item_data = torrent_xml_data
+            for idx, group in enumerate(matches.groups()):
+                path_vars['%s:%d' % (matched_source_node, idx+1)] = group
+
+            torrent.update_path_vars(path_vars)
 
         return torrent
 

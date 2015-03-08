@@ -17,3 +17,12 @@ class Torrent(Base):
     added = Column(DateTime, default=datetime.datetime.now)
 
     feed = relationship("Feed", backref = backref('torrents', order_by=id))
+
+    __content_path_variables = {}
+
+    def update_path_vars(self, data):
+        self.__content_path_variables.update(data)
+
+    def fetch_download_dir(self):
+        path = self.feed.target_path_pattern % self.__content_path_variables
+        return path

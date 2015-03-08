@@ -44,21 +44,17 @@ class TransmissionOutputPlugin(OutputPluginBase):
             # download the torrent file
             torrent_content = self.url_loader.load(torrent.link).content
 
-            # parse the target path for the torrent pointed data
-            feed_item = xml_element_to_storage(torrent._feed_item_data)
-            target_path = torrent.feed.target_path_pattern % feed_item
-
             client = self.get_client(torrent.feed.output)
 
             arguments = {
-                'download-dir': target_path,
+                'download-dir': torrent.fetch_download_dir(),
                 'paused': False
             }
 
             # the result is transmissionrpc.Torrent instance
             result = client.add_torrent(base64.b64encode(torrent_content), **arguments)
 
-            self.logger.debug("Torrent has been successfully added for the remote transmission service: %s" % result)
+            self.logger.debug("Torrent has been successfully added for the remote transmission service: %s, with %s" % (result, arguments))
             return True
 
         except Exception as e:
