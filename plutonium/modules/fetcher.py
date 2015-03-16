@@ -3,17 +3,19 @@ import thread
 
 from timer import Timer
 from tools import SimpleResponse, URLLoader
-from modules.commands import external_jsonrpc_command, commandline
+from commands import external_jsonrpc_command, commandline
 
-from feed import Feed
-from filter import Filter
-from output import Output
+from plutonium.models.feed import Feed
+from plutonium.models.filter import Filter
+from plutonium.models.output import Output
+
+from logger import get_logger
+logger = get_logger(__name__)
 
 class Fetcher(object):
 
-    def __init__(self, config, logger, orm_manager, plugin_manager):
+    def __init__(self, config, orm_manager, plugin_manager):
         self.config = config
-        self.logger = logger
         self.orm_manager = orm_manager
         self.plugin_manager = plugin_manager
         self.feeds = []
@@ -39,7 +41,7 @@ class Fetcher(object):
 
         # init Output
         if 'output' not in self.plugin_manager.plugins:
-            self.logger.warning('There is no output plugin configured!')
+            logger.warning('There is no output plugin configured!')
             return
 
         Output.output_plugins = self.plugin_manager.plugins['output']
@@ -49,7 +51,7 @@ class Fetcher(object):
 
     def get_output_types(self):
         if 'output' not in self.plugin_manager.plugins:
-            self.logger.warning('There is no output plugin configured!')
+            logger.warning('There is no output plugin configured!')
             return
 
         plugins = self.plugin_manager.plugins['output']

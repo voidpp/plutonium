@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship, backref
 import datetime
 
-from orm.base import Base
+from plutonium.modules.orm.base import Base
 
 class Torrent(Base):
     __tablename__ = 'torrents'

@@ -13,6 +13,19 @@ class StdWriter(object):
         self.logger.log(self.level, text)
 
 
+def load_logger(config_file_name):
+    with open(config_file_name) as f:
+        logging.config.dictConfig(json.load(f))
+
+def get_logger(name, module = None):
+    logger = logging.getLogger('%s.%s' % (module, name) if module else name)
+
+    sys.stderr = StdWriter(logger, logging.ERROR)
+    sys.stdout = StdWriter(logger, logging.WARNING)
+
+    return logger
+
+"""
 def get_logger(config_file_name, name):
     with open(config_file_name) as f:
         content = f.read()
@@ -27,3 +40,4 @@ def get_logger(config_file_name, name):
 
     return logger
 
+"""

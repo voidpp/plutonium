@@ -6,11 +6,14 @@ import pyjsonrpc
 from tools import Storage, SimpleResponse
 from background_process_handler import BackgroundProcessHandler
 
+from logger import get_logger
+logger = get_logger(__name__)
+
 # used by the init script to manage the Plutonium process, eg start, stop creates the IPC interface
 class PlutoniumManager(BackgroundProcessHandler):
 
-    def __init__(self, control_port, pid_file, logger):
-        super(PlutoniumManager, self).__init__(["python", "plutonium.py"], pid_file, logger)
+    def __init__(self, control_port, pid_file, filename):
+        super(PlutoniumManager, self).__init__(["python", filename], pid_file)
         self.control_port = control_port
 
     def get_rpc_client(self):
@@ -46,13 +49,13 @@ class PlutoniumManager(BackgroundProcessHandler):
             self.stop()
             return SimpleResponse(False, 'Initialize of Plutonium has been failed')
 
-        self.logger.debug('send init')
+        logger.debug('send init')
 
         initres = rpc_client.init()
 
         init_res = Storage(initres)
 
-        self.logger.debug('Init plutonium: ' + str(init_res))
+        logger.debug('Init plutonium: ' + str(init_res))
 
         if init_res.code:
             result.message = result.message + ' and initialized'
@@ -61,7 +64,7 @@ class PlutoniumManager(BackgroundProcessHandler):
 
     def control(self, name, args = {}):
 
-        self.logger.debug("Send rpc command '%s' with args: %s" % (name, args))
+        logger.debug("Send rpc command '%s' with args: %s" % (name, args))
 
         rpc_client = self.get_rpc_client()
         func = getattr(rpc_client, name)

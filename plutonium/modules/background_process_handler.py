@@ -6,10 +6,12 @@ from signal import SIGTERM
 
 from tools import SimpleResponse
 
+from logger import get_logger
+logger = get_logger(__name__)
+
 class BackgroundProcessHandler(object):
-    def __init__(self, command, pid_file, logger):
+    def __init__(self, command, pid_file):
         self.pid_file = pid_file
-        self.logger = logger
         self.command = command
 
     def start(self):
@@ -58,7 +60,7 @@ class BackgroundProcessHandler(object):
 
         if not pid:
             message = "Pidfile %s does not exist" % self.pid_file
-            self.logger.error(message)
+            logger.error(message)
             return SimpleResponse(False, 'Daemon is not running')
 
         # Try killing the daemon process
@@ -72,7 +74,7 @@ class BackgroundProcessHandler(object):
                 if os.path.exists(self.pid_file):
                     os.remove(self.pid_file)
             else:
-                self.logger.error(err)
+                logger.error(err)
                 sys.exit(1)
 
         return SimpleResponse(True, 'Daemon is stopped')

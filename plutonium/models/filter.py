@@ -1,7 +1,7 @@
 
 from sqlalchemy import Column, Integer, String, Enum
 
-from orm.base import Base
+from plutonium.modules.orm.base import Base
 
 class Filter(Base):
     __tablename__ = 'filters'

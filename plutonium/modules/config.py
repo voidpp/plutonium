@@ -4,6 +4,9 @@ from abc import abstractmethod
 
 from tools import Storage
 
+from logger import get_logger
+logger = get_logger(__name__)
+
 class ConfigBase(object):
     def __init__(self):
         self._subscribers = []
@@ -42,10 +45,9 @@ class ConfigNode(dict, ConfigBase):
 
 class Config(object):
 
-    def __init__(self, file_reader, logger):
+    def __init__(self, file_reader):
         self.data = Storage()
         self.file_reader = file_reader
-        self.logger = logger
 
     def load(self, file_name):
         self.file_name = file_name
@@ -56,7 +58,7 @@ class Config(object):
         if not self.parse():
             return False
 
-        self.logger.info('Reloading the config')
+        logger.info('Reloading the config')
 
         def check_eq(new_node, old_node):
 

@@ -2,6 +2,9 @@ import pyjsonrpc
 
 from tools import SimpleResponse, Storage
 
+from logger import get_logger
+logger = get_logger(__name__)
+
 class commandline(object):
     def __init__(self, help, arguments = dict()):
         self.help = help
@@ -16,12 +19,11 @@ class commandline(object):
         return func
 
 class CommandRequestHandler(pyjsonrpc.HttpRequestHandler):
-    logger = None
     externals = []
 
     def log_message(self, format, *args):
         # called from parent class...
-        self.logger.debug("HTTP request - %s - %s" % (self.client_address[0], format % args))
+        logger.debug("HTTP request - %s - %s" % (self.client_address[0], format % args))
 
     @commandline('Ping')
     @pyjsonrpc.rpcmethod
@@ -34,7 +36,7 @@ class CommandRequestHandler(pyjsonrpc.HttpRequestHandler):
     @commandline('paramed test method', dict(teve=dict(help='teveee', type=int), alma=dict(help = 'set the alma', type = int)))
     @pyjsonrpc.rpcmethod
     def paramed(self, alma, teve):
-        self.logger.info('paramed ' + str(alma) + str(teve))
+        logger.info('paramed ' + str(alma) + str(teve))
         return SimpleResponse(True, alma*teve)
     """
 

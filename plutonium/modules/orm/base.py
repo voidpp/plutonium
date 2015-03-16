@@ -6,8 +6,6 @@ import collections
 
 class CustomBase(object):
 
-    __need_logger__ = True
-
     def __iter__(self):
         for name in dir(self.__class__):
             attr = getattr(self.__class__, name)

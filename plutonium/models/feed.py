@@ -3,20 +3,23 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Foreign
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.relationships import RelationshipProperty
 import re
-from tools import xml_element_to_storage
+from plutonium.modules.tools import xml_element_to_storage
 
 from lxml import etree
 from StringIO import StringIO
 
-from orm.base import Base
-from timer import Timer
+from plutonium.modules.orm.base import Base
+from plutonium.modules.timer import Timer
 
-from torrent import Torrent
+from plutonium.models.torrent import Torrent
 
 feeds_filters_table = Table('feeds_filters', Base.metadata,
     Column('feed_id', Integer, ForeignKey('feeds.id')),
     Column('filter_id', Integer, ForeignKey('filters.id'))
 )
+
+from plutonium.modules.logger import get_logger
+logger = get_logger(__name__)
 
 class Feed(Base):
     __tablename__ = 'feeds'
@@ -45,14 +48,14 @@ class Feed(Base):
         return self
 
     def fetch(self):
-        self.__logger__.debug("Start fetching feed " + self.min_str())
+        logger.debug("Start fetching feed " + self.min_str())
         feed_content = self.__url_loader__.load(self.url).content
         tree = etree.parse(StringIO(feed_content))
 
         output_handler = self.output.get_handler()
 
         if output_handler is None:
-            self.__logger__.error("Not found output handler for feed '%s'" % self.name)
+            logger.error("Not found output handler for feed '%s'" % self.name)
             return
 
         torrents = []
@@ -61,7 +64,7 @@ class Feed(Base):
             guid = item.find('guid')
 
             if guid is None:
-                self.__logger__.error("Not found guid in feed content for '%s'" % self.name)
+                logger.error("Not found guid in feed content for '%s'" % self.name)
                 continue
 
             known = False
@@ -80,7 +83,7 @@ class Feed(Base):
             if not new_torrent:
                 continue
 
-            self.__logger__.debug("New torrent has been created in feed '%s'" % self.name)
+            logger.debug("New torrent has been created in feed '%s'" % self.name)
 
             new_torrent.feed = self
 
@@ -101,7 +104,7 @@ class Feed(Base):
         title = '' if title_data is None else title_data.text
 
         if link is None:
-            self.__logger__.error("Link node is missing from torrent xml node (%s)" % torrent_xml_data)
+            logger.error("Link node is missing from torrent xml node (%s)" % torrent_xml_data)
             return None
 
         filtered = False
@@ -122,7 +125,7 @@ class Feed(Base):
                 break
 
         if filtered:
-            self.__logger__.debug("Torrent has been filtered. Filter: %s, Torrent: %s" % (filter.name, title))
+            logger.debug("Torrent has been filtered. Filter: %s, Torrent: %s" % (filter.name, title))
             return None
 
         torrent = Torrent(name = guid.text, link = link.text, title = title, is_sent_out = False)
@@ -139,11 +142,11 @@ class Feed(Base):
         return torrent
 
     def start(self):
-        self.__logger__.debug("Start fetching timer for feed " + self.min_str())
+        logger.debug("Start fetching timer for feed " + self.min_str())
         self.init_timer()
         self.timer.start()
 
     def stop(self):
-        self.__logger__.debug("Stop fetching timer for feed " + self.min_str())
+        logger.debug("Stop fetching timer for feed " + self.min_str())
         self.init_timer()
         self.timer.stop()

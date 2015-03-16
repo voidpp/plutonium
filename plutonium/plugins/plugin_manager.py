@@ -1,6 +1,6 @@
 import importlib
 
-from tools import ucfirst
+from plutonium.modules.tools import ucfirst
 from functools import partial
 
 from plugin import PluginNotFoundException, PluginBase
@@ -26,10 +26,9 @@ expected config structure:
 """
 class PluginManager(object):
 
-    def __init__(self, plugin_loader, logger):
+    def __init__(self, plugin_loader):
         self.plugin_loader = plugin_loader
         self.plugins = {}
-        self.logger = logger
 
     def get_plugin(self, type, name):
         if type not in self.plugins:
@@ -46,10 +45,10 @@ class PluginManager(object):
 
     def on_plugin_list_change(self, type, new, old):
         if old is None:
-            self.logger.debug('Plugin node appended for type %s, name: %s' % (type, new))
+            logger.debug('Plugin node appended for type %s, name: %s' % (type, new))
 
         elif new is None:
-            self.logger.debug('Plugin node disappeared in type %s, name: %s' % (type, old))
+            logger.debug('Plugin node disappeared in type %s, name: %s' % (type, old))
 
         else:
             # some change in deeper of the tree
@@ -97,7 +96,8 @@ class PluginLoader(object):
 
         # get the module name from the base dir, the plugin's type and name
         # eg: plugins.config_user_interface.web
-        path = '.'.join([self.base_dir, type, name, 'plugin'])
+        #path = '.'.join([self.base_dir, type, name, 'plugin'])
+        path = 'plutonium_plugin_%s_%s' % (type, name)
         module = importlib.import_module(path)
 
         # get the plugin classname from the name and the type

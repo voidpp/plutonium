@@ -2,20 +2,23 @@
 
 import os, sys
 
-sys.path.extend(['modules', 'models'])
+from plutonium.modules.logger import load_logger
 
-from logger import get_logger
-from config import Config
-from modules.commands import CommandRequestHandler
-from cliargumentstreeparser import CLIArgumentsTreeParser
-from tools import FileReader
-from plutonium_manager import PlutoniumManager
+# get the user's home
+base_working_dir = os.path.join(os.path.expanduser('~'), '.plutonium')
+load_logger(os.path.join(base_working_dir, 'config', 'logger.json'))
+
+
+from plutonium.modules.config import Config
+from plutonium.modules.commands import CommandRequestHandler
+from plutonium.modules.cliargumentstreeparser import CLIArgumentsTreeParser
+from plutonium.modules.tools import FileReader
+from plutonium.modules.plutonium_manager import PlutoniumManager
 
 # import the classes with 'commandline' decorated functions! (maybe not used the class, but need to import)
-from modules.plutonium import Plutonium
-from modules.fetcher import Fetcher
+from plutonium.modules.plutonium_class import Plutonium
+from plutonium.modules.fetcher import Fetcher
 
-cwd = os.getcwd()
 
 # init argument parsing
 control_command = dict(name = 'control', desc = dict(help = 'Commands for the running Plutonium core'), subcommands = [])
@@ -39,24 +42,29 @@ parser = CLIArgumentsTreeParser(args_config, 'core')
 args = parser.parse()
 
 
-# init logger
-logger = get_logger(os.path.join(cwd, 'config', 'logger.json'), 'init')
-logger.info("Plutonium manager script")
+import logging
+logger = logging.getLogger('init')
 
+logger.info("Plutonium manager script")
 
 # init config
 try:
-    config = Config(FileReader(), logger)
-    config.load(os.path.join(cwd, 'config', 'core.json'))
+    config = Config(FileReader())
+    config.load(os.path.join(base_working_dir, 'config', 'core.json'))
     logger.info('Config has been successfully loaded')
 except Exception as e:
     logger.error('Exception occured during config parsing: ' + str(e))
     sys.exit(1)
 
 
+import os
+
+root = os.path.realpath(os.path.dirname(__file__))
+
 # create manager
-mgr = PlutoniumManager(config.data['command_server']['port'].value, os.path.join(cwd, 'plutonium.pid'), logger)
+mgr = PlutoniumManager(config.data['command_server']['port'].value, os.path.join(base_working_dir, 'plutonium.pid'), os.path.join(root, '../plutonium', "plutonium_starter.py"))
 command = getattr(mgr, args.sub.name)
 command_args = args.sub.sub if 'sub' in args.sub else dict()
 response = command(**command_args)
 logger.info(response.message)
+

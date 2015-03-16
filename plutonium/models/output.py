@@ -1,8 +1,8 @@
 import json
 from sqlalchemy import Column, Integer, String, Text
 
-from orm.base import Base
-from orm.types import JSONEncoded
+from plutonium.modules.orm.base import Base
+from plutonium.modules.orm.types import JSONEncoded
 
 class Output(Base):
     __tablename__ = 'outputs'
