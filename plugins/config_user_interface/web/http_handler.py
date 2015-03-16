@@ -4,6 +4,7 @@ import os, re
 from urlparse import urlparse, parse_qs
 from abc import abstractmethod
 import json
+from tools import Storage
 
 class HTTPResponse(object):
     def __init__(self, content, code):
@@ -46,16 +47,18 @@ class RawHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         self.logger.debug("File not found: %s" % file_path)
 
-        params = {}
+        # parse GET variables
+        request.get_vars = parse_qs(request.query)
 
+        # parse POST variables
+        request.post_vars = Storage()
         if self.command == 'POST':
-            body = self.rfile.read()
+            length = int(self.headers.getheader('content-length'))
+            body = self.rfile.read(length)
             try:
-                params = json.loads(body)
+                request.post_vars = json.loads(body, object_pairs_hook = Storage)
             except Exception as e:
                 self.logger.debug("Cannot parse request body '%s'. Reason: %s" % (body, e))
-
-        request.post = params
 
         # if the requested file not exists call the "not found handler"
         if self.file_not_found_handler:
@@ -80,7 +83,7 @@ class RawHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 class VirtualRequestHandlerBase(object):
 
     @abstractmethod
-    def handle(self, params, response, request):
+    def handle(self, response, request):
         pass
 
 # managing virtual requests
@@ -95,15 +98,13 @@ class VirtualHandler(object):
     """
     def register(self, pattern, handler):
         self.registered_paths[pattern] = handler
+        return self
 
     def handle_request(self, request):
-        params = parse_qs(request.query)
 
         for pattern in self.registered_paths:
             result = re.match(pattern, request.path)
             if result is not None:
-                response = HTTPResponse('', 200)
-                self.registered_paths[pattern].handle(params, response, request)
-                return response
+                return self.registered_paths[pattern].handle(request)
 
         return HTTPResponse('virtual request handler not found', 404)

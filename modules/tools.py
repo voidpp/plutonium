@@ -15,6 +15,8 @@ def xml_element_to_storage(element):
 class Storage(dict):
 
     def __getattr__(self, key):
+        if key not in self:
+            return None
         return self[key]
 
     def __setattr__(self, key, value):

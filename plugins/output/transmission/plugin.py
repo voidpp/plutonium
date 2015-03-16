@@ -27,7 +27,7 @@ class TransmissionOutputPlugin(OutputPluginBase):
 
     def get_client(self, output):
         if output.id not in self.clients:
-            params = output.get_params()
+            params = output.params
             self.logger.info("Create transmission client to %s" % params)
             self.clients[output.id] = transmissionrpc.Client('http://%(host)s:%(port)d%(path)s' % params)
 
@@ -36,7 +36,7 @@ class TransmissionOutputPlugin(OutputPluginBase):
     def send(self, torrent):
         try:
 
-            params = torrent.feed.output.get_params()
+            params = torrent.feed.output.params
 
             if params is None:
                 return False

@@ -46,7 +46,11 @@ class PlutoniumManager(BackgroundProcessHandler):
             self.stop()
             return SimpleResponse(False, 'Initialize of Plutonium has been failed')
 
-        init_res = Storage(rpc_client.init())
+        self.logger.debug('send init')
+
+        initres = rpc_client.init()
+
+        init_res = Storage(initres)
 
         self.logger.debug('Init plutonium: ' + str(init_res))
 

@@ -11,8 +11,6 @@ from StringIO import StringIO
 from orm.base import Base
 from timer import Timer
 
-from output import Output
-from filter import Filter
 from torrent import Torrent
 
 feeds_filters_table = Table('feeds_filters', Base.metadata,

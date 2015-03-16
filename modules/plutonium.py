@@ -20,6 +20,7 @@ class Plutonium(object):
         self.logger = logger
         self.config = config
         self.url_loader = URLLoader()
+        self.init_callbacks = []
 
     # initialize all of the required stuffs for the Plutonium core
     @external_jsonrpc_command
@@ -36,6 +37,7 @@ class Plutonium(object):
         try:
             # import orm related manager
             self.orm_manager = Manager(self.config.data, self.logger)
+
             self.orm_manager.decorate_models(self.url_loader)
 
         except Exception as e:
@@ -53,7 +55,17 @@ class Plutonium(object):
             self.logger.error(traceback.format_exc())
             return SimpleResponse(False, 'Exception occured during the fetcher initalization: ' + str(e))
 
+        for callback in self.init_callbacks:
+            try:
+                callback()
+            except Exception as e:
+                self.logger.error(traceback.format_exc())
+                return SimpleResponse(False, 'Exception occured during calling the init callback:' + str(e))
+
         return SimpleResponse(True)
+
+    def register_after_successfully_init(self, callback):
+        self.init_callbacks.append(callback)
 
     # Initialize the command server to receive IPC commands.
     def start_command_server(self):

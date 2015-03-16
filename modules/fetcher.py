@@ -30,7 +30,7 @@ class Fetcher(object):
 
     def add_torrents(self, torrents):
         session = self.orm_manager.create_session()
-        # SQLAlchemy's ORM does not supports bulk insert. But the typical size of the torrents param ~2-3, so not a bug problem...
+        # SQLAlchemy's ORM does not supports bulk insert. But the typical size of the torrents list ~2-3, so not a big problem...
         for torrent in torrents:
             session.add(torrent)
         session.commit()
@@ -58,7 +58,7 @@ class Fetcher(object):
 
     def fetch_feeds_from_database(self):
         self.feeds = []
-        for feed in self.orm_manager.create_session().query(Feed).all():
+        for feed in self.orm_manager.create_session().query(Feed).filter_by(enabled = True).all():
             self.feeds.append(feed)
             feed.set_fetcher(self)
 

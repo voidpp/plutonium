@@ -20,7 +20,6 @@ class Manager(object):
 
     def __create_engine(self, echo = False):
         db_uri = self.config['database']['url'].value
-        #encoding = self.config['database']['encoding'].value
 
         return sqlalchemy.create_engine(db_uri, echo = echo)
 
@@ -78,9 +77,3 @@ class Manager(object):
                 setattr(class_type, '__logger__', self.logger)
 
             setattr(class_type, '__url_loader__', url_loader)
-
-
-        # maybe this will be moved to some migration tools...
-        self.logger.debug('Create tables: ' + str(class_type.metadata.tables.keys()))
-        #class_type.metadata.drop_all(self.get_engine())
-        #class_type.metadata.create_all(self.get_engine())
