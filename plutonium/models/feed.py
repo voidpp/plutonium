@@ -25,13 +25,13 @@ class Feed(Base):
     __tablename__ = 'feeds'
 
     id = Column(Integer, primary_key = True)
-    url = Column(Text)
-    name = Column(Text)
+    url = Column(Text, nullable = False)
+    name = Column(Text, nullable = False)
     enabled = Column(Boolean)
     output_id = Column(Integer, ForeignKey("outputs.id"), nullable = False)
-    update_interval = Column(Integer)
+    update_interval = Column(Integer, nullable = False, default = 1800)
     last_update = Column(DateTime)
-    target_path_pattern = Column(Text)
+    target_path_pattern = Column(Text, nullable = False)
     filters = RelationshipProperty("Filter", secondary = feeds_filters_table)
     output = relationship("Output")
     #torrents: backref from Torrent model

@@ -1,7 +1,11 @@
 import json
+import logging
 
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy import Text
+from plutonium.modules.tools import Storage
+
+logger = logging.getLogger(__name__)
 
 class JSONEncoded(TypeDecorator):
 
@@ -28,27 +32,11 @@ class JSONEncoded(TypeDecorator):
 
         return value
 
-def check_dict_struct(value, required):
 
-	if type(value) is not dict or type(required) is not dict:
-		return False
-
-	def check_node(val_node, req_node):
-		for key in req_node:
-			if key not in val_node:
-				return False
-
-			if type(val_node[key]) is dict:
-				if type(req_node[key]) is not dict:
-					return False
-
-				if not check_node(val_node[key], req_node[key]):
-					return False
-
-			elif type(val_node[key]) is not req_node[key]:
-				return False
-
-		return True
-
-	return check_node(value, required)
-
+class StructField(Storage):
+    def __init__(self, name, type = None, default = '', required = False, nodes = None):
+        self.name = name
+        self.type = type
+        self.default = default
+        self.required = required
+        self.nodes = nodes
