@@ -62,7 +62,7 @@ import os
 root = os.path.realpath(os.path.dirname(__file__))
 
 # create manager
-mgr = PlutoniumManager(config.data['command_server']['port'].value, os.path.join(base_working_dir, 'plutonium.pid'), os.path.join(root, '../plutonium', "plutonium_starter.py"))
+mgr = PlutoniumManager(config.data['command_server']['port'].value, os.path.join(base_working_dir, 'plutonium.pid'), "plutonium_starter")
 command = getattr(mgr, args.sub.name)
 command_args = args.sub.sub if 'sub' in args.sub else dict()
 response = command(**command_args)

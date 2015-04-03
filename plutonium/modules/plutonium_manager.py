@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 class PlutoniumManager(BackgroundProcessHandler):
 
     def __init__(self, control_port, pid_file, filename):
-        super(PlutoniumManager, self).__init__(["python", filename], pid_file)
+        super(PlutoniumManager, self).__init__([filename], pid_file)
         self.control_port = control_port
 
     def get_rpc_client(self):
