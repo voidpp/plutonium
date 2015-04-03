@@ -58,9 +58,19 @@ class Fetcher(object):
 
         return plugins.keys()
 
+    def reload(self):
+        self.stop()
+        self.fetch_feeds_from_database()
+        self.start()
+
     def fetch_feeds_from_database(self):
         self.feeds = []
-        for feed in self.orm_manager.create_session().query(Feed).filter_by(enabled = True).all():
+
+        enabled_feeds = self.orm_manager.create_session().query(Feed).filter_by(enabled = True).all()
+
+        logger.debug("%s enabled feeds has been found" % len(enabled_feeds))
+
+        for feed in enabled_feeds:
             self.feeds.append(feed)
             feed.set_fetcher(self)
 

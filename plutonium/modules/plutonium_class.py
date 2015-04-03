@@ -25,6 +25,35 @@ class Plutonium(object):
         self.url_loader = URLLoader()
         self.init_callbacks = []
 
+    @external_jsonrpc_command
+    @commandline('Database related commands', dict(command = dict(help='Command', type = str, choices = ['upgrade', 'clean'])))
+    def database(self, command):
+        if command == 'upgrade':
+            try:
+                from alembic.config import Config
+                from alembic import command
+
+                db_uri = self.config.data['database']['url'].value
+
+                alembic_cfg = Config()
+                alembic_cfg.set_main_option('script_location', os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'alembic')))
+                alembic_cfg.set_main_option('sqlalchemy.url', db_uri)
+
+                res = command.upgrade(alembic_cfg, "head")
+
+                self.fetcher.reload()
+
+                return SimpleResponse(True, "Upgrade is successful")
+
+            except Exception as e:
+                logger.exception(e)
+                return SimpleResponse(False, str(e))
+
+        elif command == 'clean':
+            pass
+
+        return SimpleResponse(True)
+
     # initialize all of the required stuffs for the Plutonium core
     @external_jsonrpc_command
     def init(self):
