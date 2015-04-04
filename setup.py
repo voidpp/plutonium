@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "Plutonium",
-    version = '0.4',
+    version = '1.0',
     install_requires = [
         "SQLAlchemy >= 0.9.8",
         "alembic == 0.7.4",
