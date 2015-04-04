@@ -31,11 +31,11 @@ class Fetcher(object):
         return SimpleResponse(True, 'Fetching started in %d feed(s)' % len(self.feeds))
 
     def add_torrents(self, torrents):
-        session = self.orm_manager.create_session()
-        # SQLAlchemy's ORM does not supports bulk insert. But the typical size of the torrents list ~2-3, so not a big problem...
-        for torrent in torrents:
-            session.add(torrent)
-        session.commit()
+        with self.orm_manager.create_session() as session:
+            # SQLAlchemy's ORM does not supports bulk insert. But the typical size of the torrents list ~2-3, so not a big problem...
+            for torrent in torrents:
+                session.add(torrent)
+            session.commit()
 
     def init_models(self):
 
@@ -66,13 +66,14 @@ class Fetcher(object):
     def fetch_feeds_from_database(self):
         self.feeds = []
 
-        enabled_feeds = self.orm_manager.create_session().query(Feed).filter_by(enabled = True).all()
+        with self.orm_manager.create_session() as session:
+            enabled_feeds = session.query(Feed).filter_by(enabled = True).all()
 
-        logger.debug("%s enabled feeds has been found" % len(enabled_feeds))
+            logger.debug("%s enabled feeds has been found" % len(enabled_feeds))
 
-        for feed in enabled_feeds:
-            self.feeds.append(feed)
-            feed.set_fetcher(self)
+            for feed in enabled_feeds:
+                self.feeds.append(feed)
+                feed.set_fetcher(self)
 
     def stop(self):
         for feed in self.feeds:

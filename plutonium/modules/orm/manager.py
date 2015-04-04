@@ -17,6 +17,17 @@ class Manager(object):
         self.__engine = None
         self.__session = None
 
+    class Session(object):
+        def __init__(self, instance, onclose):
+            self.instance = instance
+            self.onclose = onclose
+
+        def __enter__(self):
+            return self.instance
+
+        def __exit__(self, type, value, traceback):
+            self.onclose()
+
     def __create_engine(self, echo = False):
         db_uri = self.config['database']['url'].value
 
@@ -39,12 +50,17 @@ class Manager(object):
 
         return self.__engine
 
-    def create_session(self):
+    def close_session(self):
         if self.__session:
             self.__session.close()
+            self.__session = None
+
+    def create_session(self):
+        self.close_session()
 
         session_factory = sessionmaker(bind=self.get_engine())
         session_class = scoped_session(session_factory)
 
         self.__session = session_class()
-        return self.__session
+
+        return Manager.Session(self.__session, self.close_session)

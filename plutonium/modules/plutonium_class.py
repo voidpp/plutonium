@@ -1,4 +1,6 @@
 import os
+import shutil
+import glob
 import pyjsonrpc
 import traceback
 
@@ -7,18 +9,16 @@ from commands import CommandRequestHandler, external_jsonrpc_command, commandlin
 from fetcher import Fetcher
 from plutonium.plugins.plugin_manager import PluginManager, PluginLoader
 from orm.manager import Manager
+from orm.base import Base
 
-"""
-    The handler class of the core Plutonium
-
-    commands: cleanup!
-
-"""
 
 from plutonium.modules.logger import get_logger
 logger = get_logger(__name__)
 
 class Plutonium(object):
+    """
+        The handler class of the core Plutonium
+    """
 
     def __init__(self, config):
         self.config = config
@@ -26,31 +26,30 @@ class Plutonium(object):
         self.init_callbacks = []
 
     @external_jsonrpc_command
-    @commandline('Database related commands', dict(command = dict(help='Command', type = str, choices = ['upgrade', 'clean'])))
+    @commandline('Database related commands', dict(command = dict(help='Command', type = str, choices = ['clean', 'purge'])))
     def database(self, command):
-        if command == 'upgrade':
+        if command == 'clean':
+            pass
+
+        elif command == 'purge':
             try:
-                from alembic.config import Config
-                from alembic import command
+                engine = self.orm_manager.get_engine()
 
-                db_uri = self.config.data['database']['url'].value
+                logger.debug("Drop all the tables!")
 
-                alembic_cfg = Config()
-                alembic_cfg.set_main_option('script_location', os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'alembic')))
-                alembic_cfg.set_main_option('sqlalchemy.url', db_uri)
+                for table in reversed(Base.metadata.sorted_tables):
+                    logger.debug("Dropping table %s..." % table.name)
+                    table.drop(engine)
 
-                res = command.upgrade(alembic_cfg, "head")
+                engine.execute('DROP TABLE `alembic_version`')
 
-                self.fetcher.reload()
+                logger.debug("All table has been dropped")
 
-                return SimpleResponse(True, "Upgrade is successful")
+                return SimpleResponse(True, "The database has been fully purged")
 
             except Exception as e:
                 logger.exception(e)
                 return SimpleResponse(False, str(e))
-
-        elif command == 'clean':
-            pass
 
         return SimpleResponse(True)
 
