@@ -16,9 +16,7 @@ from plutonium.modules.configure import Configure
 from plutonium.modules.plutonium_class import Plutonium
 from plutonium.modules.fetcher import Fetcher
 
-
 # init argument parsing
-control_command = dict(name = 'control', desc = dict(help = 'Commands for the running Plutonium core'), subcommands = [])
 
 args_config = [
     dict(name = 'configure', desc = dict(help = 'Configure the Plutonium for the first use')),
@@ -26,7 +24,6 @@ args_config = [
     dict(name = 'stop', desc = dict(help = 'Stop Plutonium')),
     dict(name = 'restart', desc = dict(help = 'Restart Plutonium')),
     dict(name = 'status', desc = dict(help = 'The status of Plutonium')),
-    control_command,
 ]
 
 # get the rpc method list to add args
@@ -34,7 +31,7 @@ for name in dir(CommandRequestHandler):
     attr = getattr(CommandRequestHandler, name)
     if hasattr(attr, 'commandline'):
         cmd_desc = attr.commandline
-        control_command['subcommands'].append(dict(name = name, desc = dict(help = cmd_desc.help), arguments = cmd_desc.arguments))
+        args_config.append(dict(name = name, desc = dict(help = cmd_desc.help), arguments = cmd_desc.arguments))
 
 parser = CLIArgumentsTreeParser(args_config, 'core')
 args = parser.parse()
@@ -62,7 +59,13 @@ except Exception as e:
 
 # create manager
 mgr = PlutoniumManager(config.data['command_server']['port'].value, os.path.join(Directory.base(), 'plutonium.pid'), "plutonium_starter")
-command = getattr(mgr, args.sub.name)
-command_args = args.sub.sub if 'sub' in args.sub else dict()
+
+if hasattr(mgr, args.sub.name):
+    command = getattr(mgr, args.sub.name)
+    command_args = dict()
+else:
+    command = mgr.control
+    command_args = args.sub
+
 response = command(**command_args)
 logger.info(response.message)
