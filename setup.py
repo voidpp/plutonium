@@ -7,6 +7,7 @@ setup(
     author = 'Lajos Santa',
     author_email = 'santa.lajos@coldline.hu',
     url = 'https://github.com/voidpp/plutonium',
+    license = 'MIT',   
     install_requires = [
         "SQLAlchemy >= 0.9.8",
         "alembic == 0.7.4",
@@ -18,6 +19,4 @@ setup(
         'bin/plutonium',
         'bin/plutonium_starter',
     ],
-    license = 'MIT',
 )
-

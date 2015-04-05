@@ -4,3 +4,5 @@ plutonium.pid
 config/core.json
 config/logger.json
 [Pp]lutonium.egg-info
+dist
+plutonium/alembic.ini
