@@ -49,7 +49,13 @@ class Feed(Base):
 
     def fetch(self):
         logger.debug("Start fetching feed " + self.min_str())
-        feed_content = self.fetcher.load(self.url).content
+
+        try:
+            feed_content = self.__fetcher__.url_loader.load(self.url).content
+        except Exception as e:
+            logger.error("Failed to load '%s': %s" % (self.url, e))
+            return
+
         tree = etree.parse(StringIO(feed_content))
 
         output_handler = self.output.get_handler()

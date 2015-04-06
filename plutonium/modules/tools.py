@@ -62,4 +62,4 @@ class URLLoader(object):
             response = urllib2.urlopen(req)
             return HTTPResponse(response.getcode(), response.read(), response.info().dict)
         except urllib2.URLError, e:
-            return HTTPResponse(e.code, e.read(), e.info().dict)
+            raise
