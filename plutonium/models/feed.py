@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.relationships import RelationshipProperty
 import re
 from plutonium.modules.tools import xml_element_to_storage
-from unidecode import unidecode
+import datetime
 
 from lxml import etree
 from StringIO import StringIO
@@ -38,7 +38,7 @@ class Feed(Base):
     #torrents: backref from Torrent model
 
     def min_str(self):
-        return "<id: %d, name: '%s'>" % (self.id, unidecode(self.name))
+        return "<id: %d, name: '%s'>" % (self.id, self.name)
 
     def init_timer(self):
         if not hasattr(self, 'timer'):
@@ -62,7 +62,7 @@ class Feed(Base):
         output_handler = self.output.get_handler()
 
         if output_handler is None:
-            logger.error("Not found output handler for feed '%s'" % unidecode(self.name))
+            logger.error("Not found output handler for feed '%s'" % self.name)
             return
 
         torrents = []
@@ -71,7 +71,7 @@ class Feed(Base):
             guid = item.find('guid')
 
             if guid is None:
-                logger.error("Not found guid in feed content for '%s'" % unidecode(self.name))
+                logger.error("Not found guid in feed content for '%s'" % self.name)
                 continue
 
             known = False
@@ -85,12 +85,15 @@ class Feed(Base):
             if known:
                 continue
 
+            self.last_update = datetime.datetime.now()
+            self.__fetcher__.session.commit()
+
             new_torrent = self.filter_torrent(item)
 
             if not new_torrent:
                 continue
 
-            logger.debug("New torrent has been created in feed '%s'" % unidecode(self.name))
+            logger.debug("New torrent has been created in feed '%s'" % self.name)
 
             new_torrent.feed = self
 
@@ -111,7 +114,7 @@ class Feed(Base):
         title = '' if title_data is None else title_data.text
 
         if link is None:
-            logger.error("Link node is missing from torrent xml node (%s)" % unidecode(torrent_xml_data))
+            logger.error("Link node is missing from torrent xml node (%s)" % torrent_xml_data)
             return None
 
         filtered = False
@@ -132,7 +135,7 @@ class Feed(Base):
                 break
 
         if filtered:
-            logger.debug("Torrent has been filtered. Filter: %s, Torrent: %s" % (unidecode(filter.name), unidecode(title)))
+            logger.debug("Torrent has been filtered. Filter: %s, Torrent: %s" % (filter.name, title))
             return None
 
         torrent = Torrent(name = guid.text, link = link.text, title = title, is_sent_out = False)

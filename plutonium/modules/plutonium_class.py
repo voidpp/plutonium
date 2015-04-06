@@ -33,6 +33,8 @@ class Plutonium(object):
 
         elif command == 'purge':
             try:
+                self.orm_manager.close_sessions()
+
                 engine = self.orm_manager.get_engine()
 
                 logger.debug("Drop all the tables!")

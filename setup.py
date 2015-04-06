@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "Plutonium",
-    version = '1.0',
+    version = '1.0.1',
     description = "RSS fetcher for bittorrent feeds",
     author = 'Lajos Santa',
     author_email = 'santa.lajos@coldline.hu',
