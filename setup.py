@@ -12,6 +12,7 @@ setup(
         "SQLAlchemy >= 0.9.8",
         "alembic == 0.7.4",
         "python-jsonrpc == 0.6.1",
+        "Unidecode == 0.04.17",
     ],
     packages = find_packages(),
     include_package_data = True,
