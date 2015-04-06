@@ -49,7 +49,7 @@ class Feed(Base):
 
     def fetch(self):
         logger.debug("Start fetching feed " + self.min_str())
-        feed_content = self.__url_loader__.load(self.url).content
+        feed_content = self.fetcher.load(self.url).content
         tree = etree.parse(StringIO(feed_content))
 
         output_handler = self.output.get_handler()

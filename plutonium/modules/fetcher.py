@@ -18,6 +18,7 @@ class Fetcher(object):
         self.config = config
         self.orm_manager = orm_manager
         self.plugin_manager = plugin_manager
+        self.url_loader = URLLoader()
         self.feeds = []
 
     def do_fetch(self):
@@ -45,9 +46,6 @@ class Fetcher(object):
             return
 
         Output.output_plugins = self.plugin_manager.plugins['output']
-
-        # init Feed
-        Feed.url_loader = URLLoader()
 
     def get_output_types(self):
         if 'output' not in self.plugin_manager.plugins:
