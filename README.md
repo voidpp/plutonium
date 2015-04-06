@@ -1,6 +1,6 @@
 # Plutonium 
 #### Yet another rss fetcher for bittorrent feeds
-Tested only debian wheezy and ubuntu 14.04
+Tested only ubuntu 14.04
 
 ## Installation
 
