@@ -82,6 +82,7 @@ class Configure():
 
         if self.app_config in self.new_files:
             data['database']['url'] = 'sqlite:///%s' % os.path.join(Directory.base(), 'plutonium.db')
+            data['database']['connect_args']['check_same_thread'] = False
             self.logger.debug("Default database uri is set to '%s'" % data['database']['url'])
 
         # searching for plutonium plugins and configure the app config's plugins section

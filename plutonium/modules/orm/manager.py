@@ -5,6 +5,7 @@ import sys
 import importlib
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.pool import StaticPool
 
 from plutonium.modules.tools import ucfirst
 
@@ -20,7 +21,13 @@ class Manager(object):
     def __create_engine(self, echo = False):
         db_uri = self.config['database']['url'].value
 
-        return sqlalchemy.create_engine(db_uri, echo = echo)
+        kwargs = dict(
+            echo = echo,
+            poolclass = StaticPool,
+            connect_args = self.config['database']['connect_args'].sub_values()
+        )
+
+        return sqlalchemy.create_engine(db_uri, **kwargs)
 
     def is_connected(self):
         if self.__engine is None:
