@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, logging
 
 from plutonium.directories import Directory
-from plutonium.modules.logger import load_logger, get_logger
+from plutonium.modules.logger import load_logger, get_logger, StdWriter
 from plutonium.modules.config import Config
 from plutonium.modules.tools import FileReader
 from plutonium.modules.plutonium_class import Plutonium
@@ -13,6 +13,9 @@ load_logger(os.path.join(Directory.config(), 'logger.json'))
 logger = get_logger('plutonium')
 
 logger.info("Welcome to the world's most wonderful bittorrent rss fetcher. (pid: %d)" % os.getpid())
+
+sys.stderr = StdWriter(logger, logging.ERROR)
+sys.stdout = StdWriter(logger, logging.WARNING)
 
 # init config
 try:
