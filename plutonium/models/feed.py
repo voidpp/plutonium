@@ -86,7 +86,9 @@ class Feed(Base):
                 continue
 
             self.last_update = datetime.datetime.now()
-            self.__fetcher__.session.commit()
+
+            with self.__fetcher__.orm_manager.lock:
+                self.__fetcher__.session.commit()
 
             new_torrent = self.filter_torrent(item)
 

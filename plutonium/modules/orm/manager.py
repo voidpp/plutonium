@@ -6,6 +6,7 @@ import importlib
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import StaticPool
+from threading import Lock
 
 from plutonium.modules.tools import ucfirst
 
@@ -17,6 +18,13 @@ class Manager(object):
 
         self.__engine = None
         self.__sessions = []
+
+        """
+            If SQLlite is used as database need to switch of the check_same_thread, because of design reason.
+            But the SQLite is not thread safe so need to solve the safe resource sharing by manually,
+            so the whole database connection handled as one shared resource.
+        """
+        self.lock = Lock()
 
     def __create_engine(self, echo = False):
         db_uri = self.config['database']['url'].value

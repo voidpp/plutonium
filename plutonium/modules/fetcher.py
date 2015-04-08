@@ -33,8 +33,9 @@ class Fetcher(object):
         return SimpleResponse(True, 'Fetching started in %d feed(s)' % len(self.feeds))
 
     def add_torrents(self, torrents):
-        self.session.add_all(torrent)
-        self.session.commit()
+        with self.orm_manager.lock:
+            self.session.add_all(torrent)
+            self.session.commit()
 
     def init_models(self):
 
@@ -61,8 +62,10 @@ class Fetcher(object):
 
     def fetch_feeds_from_database(self):
         self.feeds = []
+        enabled_feeds = []
 
-        enabled_feeds = self.session.query(Feed).filter_by(enabled = True).all()
+        with self.orm_manager.lock:
+            enabled_feeds = self.session.query(Feed).filter_by(enabled = True).all()
 
         logger.debug("%s enabled feeds has been found" % len(enabled_feeds))
 
