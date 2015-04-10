@@ -34,7 +34,7 @@ class Fetcher(object):
 
     def add_torrents(self, torrents):
         with self.orm_manager.lock:
-            self.session.add_all(torrent)
+            self.session.add_all(torrents)
             self.session.commit()
 
     def init_models(self):
